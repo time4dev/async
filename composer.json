@@ -1,5 +1,5 @@
 {
-    "version": "1.5",
+    "version": "1.6",
     "name": "time4dev/async",
     "description": "Asynchronous and parallel PHP with the PCNTL extension",
     "keywords": [

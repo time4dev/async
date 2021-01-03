@@ -4,8 +4,8 @@ namespace Time4dev\Async;
 
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Time4dev\Async\Commands\JobMakeCommand;
 use Time4dev\Async\Commands\WorkerCommand;
-use VXM\Async\Commands\JobMakeCommand;
 
 class AsyncServiceProvider extends BaseServiceProvider implements DeferrableProvider
 {
