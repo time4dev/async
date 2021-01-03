@@ -17,35 +17,17 @@ class ParentRuntime
 {
     /** @var bool */
     protected static $isInitialised = false;
-
-    /** @var string */
-    protected static $autoloader;
-
-    /** @var string */
-    protected static $childProcessScript;
-
     protected static $currentId = 0;
-
+    protected static $autoloader = null;
     protected static $myPid = null;
 
     public static function init(string $autoloader = null)
     {
-        if (! $autoloader) {
-            $existingAutoloaderFiles = array_filter([
-                __DIR__.'/../../../../autoload.php',
-                __DIR__.'/../../../autoload.php',
-                __DIR__.'/../../vendor/autoload.php',
-                __DIR__.'/../../../vendor/autoload.php',
-            ], function (string $path) {
-                return file_exists($path);
-            });
-
-            $autoloader = reset($existingAutoloaderFiles);
+        if (!$autoloader) {
+            $autoloader = self::getAutoloader();
         }
 
         self::$autoloader = $autoloader;
-        self::$childProcessScript = __DIR__.'/ChildRuntime.php';
-
         self::$isInitialised = true;
     }
 
@@ -67,7 +49,7 @@ class ParentRuntime
 
         $process = new Process([
             $binary,
-            self::$childProcessScript,
+            self::getChildProcessScript(),
             self::$autoloader,
             self::encodeTask($task),
             $outputLength,
@@ -105,5 +87,15 @@ class ParentRuntime
         self::$currentId += 1;
 
         return (string) self::$currentId.(string) self::$myPid;
+    }
+
+    public static function getAutoloader()
+    {
+        return __DIR__.'/RuntimeAutoload.php';
+    }
+
+    public static function getChildProcessScript()
+    {
+        return __DIR__.'/ChildRuntime.php';
     }
 }

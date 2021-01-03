@@ -15,6 +15,17 @@ class AsyncServiceProvider extends BaseServiceProvider implements DeferrableProv
     public function boot(): void
     {
         $this->publishConfigs();
+        $this->publishMigrations();
+    }
+
+    /**
+     * Publish async config files.
+     */
+    protected function publishMigrations(): void
+    {
+        $this->publishes([
+            __DIR__.'/Migrations/2020_12_23_202999_AddAsyncTable.php' =>  __DIR__.'/../../../../database/migrations/2020_12_23_202999_AddAsyncTable.php',
+        ], 'config');
     }
 
     /**
