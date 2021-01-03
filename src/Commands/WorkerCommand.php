@@ -35,7 +35,7 @@ class WorkerCommand extends Command
     /** @var null|int */
     protected static $myPid = null;
 
-    /** @var array  */
+    /** @var array */
     protected $processList = [];
 
     /**
@@ -81,7 +81,7 @@ class WorkerCommand extends Command
                         $this->markAsTimedOut($process);
                     }
                 } else {
-                    unset($this->processList[$process->getPid()]);
+
                 }
             });
 
@@ -101,8 +101,8 @@ class WorkerCommand extends Command
             ->table('async')
             ->whereIn('id', $queued->pluck('id'))
             ->update([
-            'status' => self::STATUS_START_PROCESS
-        ]);
+                'status' => self::STATUS_START_PROCESS
+            ]);
 
         $outputLength = null;
         $this->line("count --> {$queued->count()}");
@@ -136,7 +136,8 @@ class WorkerCommand extends Command
                 ->table('async')
                 ->where('id', $row->id)
                 ->update([
-                    'status' => self::STATUS_START_PROCESS
+                    'pid' => $process->getPid(),
+                    'status' => self::STATUS_PROCESS
                 ]);
         });
     }
@@ -215,6 +216,7 @@ class WorkerCommand extends Command
     public function markAsFinished(Runnable $process)
     {
         unset($this->processList[$process->getPid()]);
+        $this->deleteRowByProcess($process);
         $process->triggerSuccess();
     }
 
@@ -222,12 +224,24 @@ class WorkerCommand extends Command
     {
         $process->stop();
         unset($this->processList[$process->getPid()]);
+        $this->deleteRowByProcess($process);
         $process->triggerTimeout();
     }
 
     public function markAsFailed(Runnable $process)
     {
         unset($this->processList[$process->getPid()]);
+        $this->deleteRowByProcess($process);
         $process->triggerError();
+    }
+
+    public function deleteRowByProcess(Runnable $process)
+    {
+        if ($pid = $process->getPid()) {
+            $this->database
+                ->table('async')
+                ->where('pid', $pid)
+                ->delete();
+        }
     }
 }
