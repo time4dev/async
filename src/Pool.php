@@ -5,7 +5,6 @@ namespace Time4dev\Async;
 use ArrayAccess;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Symfony\Component\Process\Process;
 use Time4dev\Async\Process\ParallelProcess;
 use Time4dev\Async\Process\Runnable;
 use Time4dev\Async\Process\SynchronousProcess;
@@ -193,12 +192,12 @@ class Pool implements ArrayAccess
      */
     public function add($process, ?int $outputLength = null): Runnable
     {
-        if (!is_callable($process) && ! $process instanceof Runnable) {
+        if (! is_callable($process) && ! $process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
         //dd($process());
-        if (!$process instanceof Runnable) {
+        if (! $process instanceof Runnable) {
             $process = ParentRuntime::createProcess(
                 $process,
                 $outputLength,
@@ -207,6 +206,7 @@ class Pool implements ArrayAccess
         }
 
         $this->putInQueue($process);
+
         return $process;
     }
 

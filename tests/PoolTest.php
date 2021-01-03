@@ -3,9 +3,9 @@
 namespace Time4dev\Async\Tests;
 
 use InvalidArgumentException;
+use Symfony\Component\Stopwatch\Stopwatch;
 use Time4dev\Async\Pool;
 use Time4dev\Async\Process\SynchronousProcess;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class PoolTest extends TestCase
 {

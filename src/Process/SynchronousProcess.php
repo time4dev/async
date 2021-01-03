@@ -2,8 +2,8 @@
 
 namespace Time4dev\Async\Process;
 
-use Time4dev\Async\Task;
 use Throwable;
+use Time4dev\Async\Task;
 
 class SynchronousProcess implements Runnable
 {

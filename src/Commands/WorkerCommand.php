@@ -2,10 +2,8 @@
 
 namespace Time4dev\Async\Commands;
 
-use App\Exceptions\StopJobException;
 use Illuminate\Console\Command;
 use NotificationChannels\Telegram\Exceptions\CouldNotSendNotification;
-use Spatie\Async\Pool;
 
 class WorkerCommand extends Command
 {
@@ -20,7 +18,6 @@ class WorkerCommand extends Command
         $sleep = $this->option('sleep');
 
         while (true) {
-
             sleep($sleep);
         }
     }

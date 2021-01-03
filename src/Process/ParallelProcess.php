@@ -2,10 +2,10 @@
 
 namespace Time4dev\Async\Process;
 
-use Time4dev\Async\Output\ParallelError;
-use Time4dev\Async\Output\SerializableException;
 use Symfony\Component\Process\Process;
 use Throwable;
+use Time4dev\Async\Output\ParallelError;
+use Time4dev\Async\Output\SerializableException;
 
 class ParallelProcess implements Runnable
 {

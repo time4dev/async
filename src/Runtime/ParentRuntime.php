@@ -4,14 +4,14 @@ namespace Time4dev\Async\Runtime;
 
 use Closure;
 use Opis\Closure\SerializableClosure;
-use Time4dev\Async\Task;
 use function Opis\Closure\serialize;
 use function Opis\Closure\unserialize;
+use Symfony\Component\Process\Process;
 use Time4dev\Async\Pool;
 use Time4dev\Async\Process\ParallelProcess;
 use Time4dev\Async\Process\Runnable;
 use Time4dev\Async\Process\SynchronousProcess;
-use Symfony\Component\Process\Process;
+use Time4dev\Async\Task;
 
 class ParentRuntime
 {
