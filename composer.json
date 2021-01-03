@@ -8,14 +8,6 @@
     ],
     "homepage": "https://github.com/time4dev/async",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Brent Roose",
-            "email": "brent@spatie.be",
-            "homepage": "https://spatie.be",
-            "role": "Developer"
-        }
-    ],
     "require": {
         "php": "^7.1 || ^8.0",
         "opis/closure": "^3.4.2",
