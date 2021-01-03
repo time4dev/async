@@ -50,7 +50,7 @@ class ParentRuntime
     }
 
     /**
-     * @param Task|callable $task
+     * @param $task
      * @param int|null $outputLength
      * @param string|null $binary
      * @return Runnable
@@ -62,7 +62,7 @@ class ParentRuntime
         }
 
         if (! Pool::isSupported()) {
-            return SynchronousProcess::create($task, self::getId());
+            return new SynchronousProcess($task, self::getId());
         }
 
         $process = new Process([
@@ -71,9 +71,10 @@ class ParentRuntime
             self::$autoloader,
             self::encodeTask($task),
             $outputLength,
+            base_path(),
         ]);
 
-        return ParallelProcess::create($process, self::getId());
+        return new ParallelProcess($process, self::getId());
     }
 
     /**

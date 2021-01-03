@@ -1,5 +1,5 @@
 {
-    "version": "1.0",
+    "version": "1.1",
     "name": "time4dev/async",
     "description": "Asynchronous and parallel PHP with the PCNTL extension",
     "keywords": [
@@ -48,5 +48,18 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.1-dev"
+        },
+        "laravel": {
+            "aliases": {
+
+            },
+            "providers": [
+                "Time4dev\\Async\\AsyncServiceProvider"
+            ]
+        }
     }
 }

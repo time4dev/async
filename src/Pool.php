@@ -3,7 +3,9 @@
 namespace Time4dev\Async;
 
 use ArrayAccess;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Symfony\Component\Process\Process;
 use Time4dev\Async\Process\ParallelProcess;
 use Time4dev\Async\Process\Runnable;
 use Time4dev\Async\Process\SynchronousProcess;
@@ -55,7 +57,14 @@ class Pool implements ArrayAccess
      */
     public static function create()
     {
-        return new static();
+        $pool = new static();
+        $config = app('config')->get('async');
+        $pool->autoload($config['autoload'] ?? __DIR__.'/Runtime/RuntimeAutoload.php');
+        $pool->concurrency($config['concurrency']);
+        $pool->timeout($config['timeout']);
+        $pool->sleepTime($config['sleepTime']);
+
+        return $pool;
     }
 
     public static function isSupported(): bool
@@ -125,6 +134,58 @@ class Pool implements ArrayAccess
     }
 
     /**
+     * @param $job
+     * @return Runnable
+     */
+    public function run($job): Runnable
+    {
+        return $this->add($this->makeJob($job));
+    }
+
+    /**
+     * @param mixed ...$jobs
+     * @return array
+     */
+    public function batchRun(...$jobs): array
+    {
+        $processList = [];
+        foreach ($jobs as $k => $job) {
+            $processList[$k] = $this->run($job);
+        }
+
+        return $processList;
+    }
+
+    /**
+     * Make async job.
+     *
+     * @param $job
+     *
+     * @return mixed
+     */
+    protected function makeJob($job)
+    {
+        if (is_string($job)) {
+            return $this->createClassJob($job);
+        }
+
+        return $job;
+    }
+
+    /**
+     * @param string $job
+     * @return \Closure
+     */
+    protected function createClassJob(string $job): \Closure
+    {
+        [$class, $method] = Str::parseCallback($job, 'handle');
+
+        return function () use ($class, $method) {
+            return app()->call($class.'@'.$method);
+        };
+    }
+
+    /**
      * @param Runnable|callable $process
      * @param int|null $outputLength
      *
@@ -132,11 +193,12 @@ class Pool implements ArrayAccess
      */
     public function add($process, ?int $outputLength = null): Runnable
     {
-        if (! is_callable($process) && ! $process instanceof Runnable) {
+        if (!is_callable($process) && ! $process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
-        if (! $process instanceof Runnable) {
+        //dd($process());
+        if (!$process instanceof Runnable) {
             $process = ParentRuntime::createProcess(
                 $process,
                 $outputLength,
@@ -145,7 +207,6 @@ class Pool implements ArrayAccess
         }
 
         $this->putInQueue($process);
-
         return $process;
     }
 
@@ -179,7 +240,6 @@ class Pool implements ArrayAccess
     public function putInQueue(Runnable $process)
     {
         $this->queue[$process->getId()] = $process;
-
         $this->notify();
     }
 
