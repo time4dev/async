@@ -20,6 +20,7 @@ class WorkerCommand extends Command
         $sleep = $this->option('sleep');
 
         while (true) {
+
             sleep($sleep);
         }
     }
