@@ -17,7 +17,7 @@ use Time4dev\Async\StopAsyncException;
 
 class WorkerCommand extends Command
 {
-    protected $signature = 'async:queue {--sleep=2} {--timeout=10}';
+    protected $signature = 'async:queue {--sleep=2} {--timeout=600}';
     protected $description = 'Async queue worker';
 
     const STATUS_QUEUED = 'queued';
@@ -116,6 +116,8 @@ class WorkerCommand extends Command
         $this->line("count --> {$queued->count()}");
 
         $queued->each(function ($row) use ($outputLength) {
+            usleep(200000);
+
             $res = $process = new Process([
                 $this->binary,
                 ParentRuntime::getChildProcessScript(),
@@ -125,23 +127,23 @@ class WorkerCommand extends Command
                 base_path(),
             ]);
 
-            $process = new ParallelProcess($process, self::getId());
+            $process = ParallelProcess::create($process, self::getId());
 
             $process->then(function ($output) use ($row) {
                 $this->info($output);
-                event(sprintf("%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
+                event(sprintf("async.%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
             })->catch(function (\Throwable $exception) use ($row) {
                 $this->line(get_class($exception));
 
                 if ($exception instanceof StopAsyncException) {
-                    event(sprintf("%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
+                    event(sprintf("async.%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
                     return;
                 }
 
-                event(sprintf("%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
+                event(sprintf("async.%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
             })->timeout(function ()  use ($row) {
                 $this->line('!!!   timeout  !!!');
-                event(sprintf("%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
+                event(sprintf("async.%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
             });
 
             if ($process instanceof ParallelProcess) {
@@ -151,9 +153,6 @@ class WorkerCommand extends Command
             $process->start();
             $this->processList[$process->getPid()] = $process;
 
-            event(sprintf("%s.%s", $row->id, 'start'), [$row->id, $row->description, $process->getPid()]);
-            event(sprintf("%s.%s", $row->name, 'start'), [$row->id, $row->description, $process->getPid()]);
-
             $this->database
                 ->table('async')
                 ->where('id', $row->id)
@@ -162,6 +161,9 @@ class WorkerCommand extends Command
                     'status' => self::STATUS_PROCESS,
                     'started_at' => now()
                 ]);
+
+            event(sprintf("async.%s.%s.%s", $row->name, $row->id, 'start'), [$row->id, $row->description, $process->getPid()]);
+            event(sprintf("async.%s.%s", $row->name, 'start'), [$row->id, $row->description, $process->getPid()]);
         });
     }
 
@@ -222,12 +224,12 @@ class WorkerCommand extends Command
                 $process = $this->processList[$pid] ?? null;
 
                 if (!$process) {
+                    //$this->error(json_encode($status));
                     continue;
                 }
 
                 if ($status['status'] === 0) {
                     $this->markAsFinished($process);
-
                     continue;
                 }
 

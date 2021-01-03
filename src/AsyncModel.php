@@ -4,7 +4,9 @@
 namespace Time4dev\Async;
 
 
+use App\AsyncJobs\MyJob;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Time4dev\Async\Commands\WorkerCommand;
 use Time4dev\Async\Process\Runnable;
@@ -108,7 +110,7 @@ class AsyncModel extends Model
     public static function add($process, ?string $description = null, ?int $outputLength = null)
     {
         if (!is_callable($process) && ! $process instanceof Runnable) {
-            throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
+            throw new InvalidArgumentException('The process passed to should be callable.');
         }
 
         return self::putInQueue($process, $description);
@@ -139,6 +141,7 @@ class AsyncModel extends Model
     public function start($callback)
     {
         $callback = self::makeJob($callback);
+        // TODO add callbacks
     }
 }
 
