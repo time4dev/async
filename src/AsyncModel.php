@@ -17,6 +17,7 @@ use Time4dev\Async\Runtime\ParentRuntime;
  * @property int $pid
  * @property string $name
  * @property string $status
+ * @property string $description
  * @property string $payload
  * @property \Illuminate\Support\Carbon $started_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -25,6 +26,7 @@ use Time4dev\Async\Runtime\ParentRuntime;
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel wherePayload($value)
@@ -46,15 +48,15 @@ class AsyncModel extends Model
     public $timestamps = ['started_at'];
 
     /** @var string[]  */
-    protected $fillable = ['pid', 'status', 'name', 'payload', 'started_at', 'created_at', 'updated_at'];
+    protected $fillable = ['pid', 'description', 'status', 'name', 'payload', 'started_at', 'created_at', 'updated_at'];
 
     /**
      * @param $job
-     * @return Runnable
+     * @return Model|AsyncModel
      */
-    public static function run($job)
+    public static function run($job, ?string $description = null)
     {
-        return self::add(self::makeJob($job));
+        return self::add(self::makeJob($job), $description);
     }
 
     /**
@@ -64,19 +66,17 @@ class AsyncModel extends Model
     public function batchRun(...$jobs): array
     {
         $processList = [];
-        foreach ($jobs as $k => $job) {
-            $processList[$k] = self::run($job);
+        foreach ($jobs as $k => $row) {
+            [$job, $description] = $row;
+            $processList[$k] = self::run($job, $description);
         }
 
         return $processList;
     }
 
     /**
-     * Make async job.
-     *
      * @param $job
-     *
-     * @return mixed
+     * @return \Closure
      */
     protected static function makeJob($job)
     {
@@ -101,22 +101,24 @@ class AsyncModel extends Model
     }
 
     /**
-     * @param Runnable|callable $process
+     * @param $process
      * @param int|null $outputLength
-     *
-     * @return Runnable
+     * @return Model|AsyncModel
      */
-    public static function add($process, ?int $outputLength = null)
+    public static function add($process, ?string $description = null, ?int $outputLength = null)
     {
         if (!is_callable($process) && ! $process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
-        self::putInQueue($process);
-        return $process;
+        return self::putInQueue($process, $description);
     }
 
-    public static function putInQueue($process)
+    /**
+     * @param $process
+     * @return Model|AsyncModel
+     */
+    public static function putInQueue($process, ?string $description)
     {
         if ($name = $name = method_exists($process, 'dbName')) {
             $name = $process->dbName();
@@ -128,9 +130,15 @@ class AsyncModel extends Model
 
         return AsyncModel::create([
             'name' => $name,
+            'description' => $description,
             'status' => WorkerCommand::STATUS_QUEUED,
             'payload' => ParentRuntime::encodeTask($process)
         ]);
+    }
+
+    public function start($callback)
+    {
+        $callback = self::makeJob($callback);
     }
 }
 

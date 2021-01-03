@@ -13,10 +13,11 @@ use Time4dev\Async\AsyncModel;
 use Time4dev\Async\Process\ParallelProcess;
 use Time4dev\Async\Process\Runnable;
 use Time4dev\Async\Runtime\ParentRuntime;
+use Time4dev\Async\StopAsyncException;
 
 class WorkerCommand extends Command
 {
-    protected $signature = 'async:queue {--sleep=2} {--timeout=60}';
+    protected $signature = 'async:queue {--sleep=2} {--timeout=10}';
     protected $description = 'Async queue worker';
 
     const STATUS_QUEUED = 'queued';
@@ -48,10 +49,13 @@ class WorkerCommand extends Command
         }
 
         $sleep = $this->option('sleep');
-        $pool = Pool::create();
-
         $this->database = app('db')->connection('mysql');
         $this->registerListener();
+
+        $this->database
+            ->table('async')
+            ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])
+            ->delete();
 
         $i = 1;
         while (true) {
@@ -59,7 +63,11 @@ class WorkerCommand extends Command
             $i++;
             sleep($sleep);
 
-            $started = AsyncModel::whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])->count();
+            $started = $this->database
+                ->table('async')
+                ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])
+                ->count();
+
             $concurrency = config('async.concurrency', 20);
             $limit = $concurrency - $started;
 
@@ -119,10 +127,21 @@ class WorkerCommand extends Command
 
             $process = new ParallelProcess($process, self::getId());
 
-            $process->then(function ($output) {
+            $process->then(function ($output) use ($row) {
                 $this->info($output);
-            })->catch(function (\Throwable $exception) {
-                $this->error($exception);
+                event(sprintf("%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
+            })->catch(function (\Throwable $exception) use ($row) {
+                $this->line(get_class($exception));
+
+                if ($exception instanceof StopAsyncException) {
+                    event(sprintf("%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
+                    return;
+                }
+
+                event(sprintf("%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
+            })->timeout(function ()  use ($row) {
+                $this->line('!!!   timeout  !!!');
+                event(sprintf("%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
             });
 
             if ($process instanceof ParallelProcess) {
@@ -131,6 +150,9 @@ class WorkerCommand extends Command
 
             $process->start();
             $this->processList[$process->getPid()] = $process;
+
+            event(sprintf("%s.%s", $row->id, 'start'), [$row->id, $row->description, $process->getPid()]);
+            event(sprintf("%s.%s", $row->name, 'start'), [$row->id, $row->description, $process->getPid()]);
 
             $this->database
                 ->table('async')
