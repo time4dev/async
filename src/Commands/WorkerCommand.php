@@ -224,12 +224,12 @@ class WorkerCommand extends Command
                 $process = $this->processList[$pid] ?? null;
 
                 if (!$process) {
-                    //$this->error(json_encode($status));
                     continue;
                 }
 
                 if ($status['status'] === 0) {
                     $this->markAsFinished($process);
+
                     continue;
                 }
 
