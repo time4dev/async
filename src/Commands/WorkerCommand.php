@@ -137,7 +137,8 @@ class WorkerCommand extends Command
                 ->where('id', $row->id)
                 ->update([
                     'pid' => $process->getPid(),
-                    'status' => self::STATUS_PROCESS
+                    'status' => self::STATUS_PROCESS,
+                    'started_at' => now()
                 ]);
         });
     }

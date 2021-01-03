@@ -18,7 +18,7 @@ use Time4dev\Async\Runtime\ParentRuntime;
  * @property string $name
  * @property string $status
  * @property string $payload
- * @property string $started_at
+ * @property \Illuminate\Support\Carbon $started_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|AsyncModel newModelQuery()
@@ -36,23 +36,16 @@ use Time4dev\Async\Runtime\ParentRuntime;
  */
 class AsyncModel extends Model
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
+    /** @var string  */
     protected $table = 'async';
 
-    /**
-     * The "type" of the auto-incrementing ID.
-     *
-     * @var string
-     */
+    /** @var string  */
     protected $keyType = 'integer';
 
-    /**
-     * @var array
-     */
+    /** @var string[]  */
+    public $timestamps = ['started_at'];
+
+    /** @var string[]  */
     protected $fillable = ['pid', 'status', 'name', 'payload', 'started_at', 'created_at', 'updated_at'];
 
     /**
