@@ -1,11 +1,12 @@
 {
-    "name": "spatie/async",
+    "version": "1.0",
+    "name": "time4dev/async",
     "description": "Asynchronous and parallel PHP with the PCNTL extension",
     "keywords": [
         "spatie",
         "async"
     ],
-    "homepage": "https://github.com/spatie/async",
+    "homepage": "https://github.com/time4dev/async",
     "license": "MIT",
     "authors": [
         {
