@@ -129,19 +129,19 @@ class WorkerCommand extends Command
 
             $process->then(function ($output) use ($row) {
                 $this->info($output);
-                event(sprintf("%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
+                event(sprintf("async.%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
             })->catch(function (\Throwable $exception) use ($row) {
                 $this->line(get_class($exception));
 
                 if ($exception instanceof StopAsyncException) {
-                    event(sprintf("%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
+                    event(sprintf("async.%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
                     return;
                 }
 
-                event(sprintf("%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
+                event(sprintf("async.%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
             })->timeout(function ()  use ($row) {
                 $this->line('!!!   timeout  !!!');
-                event(sprintf("%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
+                event(sprintf("async.%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
             });
 
             if ($process instanceof ParallelProcess) {
@@ -151,8 +151,8 @@ class WorkerCommand extends Command
             $process->start();
             $this->processList[$process->getPid()] = $process;
 
-            event(sprintf("%s.%s", $row->id, 'start'), [$row->id, $row->description, $process->getPid()]);
-            event(sprintf("%s.%s", $row->name, 'start'), [$row->id, $row->description, $process->getPid()]);
+            event(sprintf("async.%s.%s.%s", $row->name, $row->id, 'start'), [$row->id, $row->description, $process->getPid()]);
+            event(sprintf("async.%s.%s", $row->name, 'start'), [$row->id, $row->description, $process->getPid()]);
 
             $this->database
                 ->table('async')
