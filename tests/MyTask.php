@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
-use Spatie\Async\Task;
+use Time4dev\Async\Task;
 
 class MyTask extends Task
 {

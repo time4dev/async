@@ -1,8 +1,8 @@
 <?php
 
-namespace Spatie\Async\Process;
+namespace Time4dev\Async\Process;
 
-use Spatie\Async\Task;
+use Time4dev\Async\Task;
 use Throwable;
 
 class SynchronousProcess implements Runnable

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async;
+namespace Time4dev\Async;
 
 abstract class Task
 {

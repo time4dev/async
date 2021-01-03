@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async\Output;
+namespace Time4dev\Async\Output;
 
 use Exception;
 

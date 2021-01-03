@@ -1,15 +1,16 @@
 <?php
 
-namespace Spatie\Async\Runtime;
+namespace Time4dev\Async\Runtime;
 
 use Closure;
 use Opis\Closure\SerializableClosure;
+use Time4dev\Async\Task;
 use function Opis\Closure\serialize;
 use function Opis\Closure\unserialize;
-use Spatie\Async\Pool;
-use Spatie\Async\Process\ParallelProcess;
-use Spatie\Async\Process\Runnable;
-use Spatie\Async\Process\SynchronousProcess;
+use Time4dev\Async\Pool;
+use Time4dev\Async\Process\ParallelProcess;
+use Time4dev\Async\Process\Runnable;
+use Time4dev\Async\Process\SynchronousProcess;
 use Symfony\Component\Process\Process;
 
 class ParentRuntime
@@ -49,10 +50,10 @@ class ParentRuntime
     }
 
     /**
-     * @param \Spatie\Async\Task|callable $task
+     * @param Task|callable $task
      * @param int|null $outputLength
-     *
-     * @return \Spatie\Async\Process\Runnable
+     * @param string|null $binary
+     * @return Runnable
      */
     public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php'): Runnable
     {
@@ -76,7 +77,7 @@ class ParentRuntime
     }
 
     /**
-     * @param \Spatie\Async\Task|callable $task
+     * @param Task|callable $task
      *
      * @return string
      */

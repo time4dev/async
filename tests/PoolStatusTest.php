@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Spatie\Async\Pool;
+use Time4dev\Async\Pool;
 
 class PoolStatusTest extends TestCase
 {

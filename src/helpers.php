@@ -1,14 +1,16 @@
 <?php
 
-use Spatie\Async\Pool;
-use Spatie\Async\Process\Runnable;
-use Spatie\Async\Runtime\ParentRuntime;
+use Time4dev\Async\Pool;
+use Time4dev\Async\Process\ParallelProcess;
+use Time4dev\Async\Process\Runnable;
+use Time4dev\Async\Runtime\ParentRuntime;
+use Time4dev\Async\Task;
 
 if (! function_exists('async')) {
     /**
-     * @param \Spatie\Async\Task|callable $task
+     * @param Task|callable $task
      *
-     * @return \Spatie\Async\Process\ParallelProcess
+     * @return ParallelProcess
      */
     function async($task): Runnable
     {

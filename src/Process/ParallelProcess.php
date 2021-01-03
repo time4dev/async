@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Async\Process;
+namespace Time4dev\Async\Process;
 
-use Spatie\Async\Output\ParallelError;
-use Spatie\Async\Output\SerializableException;
+use Time4dev\Async\Output\ParallelError;
+use Time4dev\Async\Output\SerializableException;
 use Symfony\Component\Process\Process;
 use Throwable;
 

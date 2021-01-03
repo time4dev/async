@@ -1,10 +1,10 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
 use InvalidArgumentException;
-use Spatie\Async\Pool;
-use Spatie\Async\Process\SynchronousProcess;
+use Time4dev\Async\Pool;
+use Time4dev\Async\Process\SynchronousProcess;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class PoolTest extends TestCase

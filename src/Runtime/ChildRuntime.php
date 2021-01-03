@@ -1,6 +1,6 @@
 <?php
 
-use Spatie\Async\Runtime\ParentRuntime;
+use Time4dev\Async\Runtime\ParentRuntime;
 
 try {
     $autoloader = $argv[1] ?? null;
@@ -28,7 +28,7 @@ try {
     $serializedOutput = base64_encode(serialize($output));
 
     if (strlen($serializedOutput) > $outputLength) {
-        throw \Spatie\Async\Output\ParallelError::outputTooLarge($outputLength);
+        throw \Time4dev\Async\Output\ParallelError::outputTooLarge($outputLength);
     }
 
     fwrite(STDOUT, $serializedOutput);
@@ -37,7 +37,7 @@ try {
 } catch (Throwable $exception) {
     require_once __DIR__.'/../Output/SerializableException.php';
 
-    $output = new \Spatie\Async\Output\SerializableException($exception);
+    $output = new \Time4dev\Async\Output\SerializableException($exception);
 
     fwrite(STDERR, base64_encode(serialize($output)));
 

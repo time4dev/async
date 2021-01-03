@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
 class NonInvokableClass
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
-use Spatie\Async\Output\ParallelError;
-use Spatie\Async\Pool;
+use Time4dev\Async\Output\ParallelError;
+use Time4dev\Async\Pool;
 
 class ContentLengthTest extends TestCase
 {

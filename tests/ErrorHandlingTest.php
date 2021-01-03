@@ -1,13 +1,13 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
 use Error;
 use Exception;
 use ParseError;
-use Spatie\Async\Output\ParallelError;
-use Spatie\Async\Output\ParallelException;
-use Spatie\Async\Pool;
+use Time4dev\Async\Output\ParallelError;
+use Time4dev\Async\Output\ParallelException;
+use Time4dev\Async\Pool;
 
 class ErrorHandlingTest extends TestCase
 {
@@ -147,7 +147,7 @@ class ErrorHandlingTest extends TestCase
 
             $myClass->throwException();
         })->catch(function (MyException $exception) {
-            $this->assertStringContainsString('Spatie\Async\Tests\MyClass->throwException()', $exception->getMessage());
+            $this->assertStringContainsString('Time4dev\Async\Tests\MyClass->throwException()', $exception->getMessage());
         });
 
         $pool->wait();

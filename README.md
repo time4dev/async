@@ -28,7 +28,7 @@ composer require spatie/async
 ## Usage
 
 ```php
-use Spatie\Async\Pool;
+use Time4dev\Async\Pool;
 
 $pool = Pool::create();
 
@@ -72,7 +72,7 @@ $pool
 Instead of using methods on the `$pool` object, you may also use the `async` and `await` helper functions.
 
 ```php
-use Spatie\Async\Pool;
+use Time4dev\Async\Pool;
 
 $pool = Pool::create();
 
@@ -107,7 +107,7 @@ $pool
 If there's no error handler added, the error will be thrown in the parent process when calling `await()` or `$pool->wait()`.
 
 If the child process would unexpectedly stop without throwing an `Throwable`, 
-the output written to `stderr` will be wrapped and thrown as `Spatie\Async\ParallelError` in the parent process.
+the output written to `stderr` will be wrapped and thrown as `Time4dev\Async\ParallelError` in the parent process.
 
 ### Catching exceptions by type
 
@@ -149,7 +149,7 @@ of the child processes, you can use the `$pool->stop()` method. This will preven
 pool from starting any additional processes.
 
 ```php
-use Spatie\Async\Pool;
+use Time4dev\Async\Pool;
 
 $pool = Pool::create();
 
@@ -188,7 +188,7 @@ Because a child process is always bootstrapped from nothing, chances are you'll 
 The `Task` class makes this easier to do.
 
 ```php
-use Spatie\Async\Task;
+use Time4dev\Async\Task;
 
 class MyTask extends Task
 {
@@ -233,7 +233,7 @@ You're free to create as many pools as you want, each pool has its own queue of 
 A pool is configurable by the developer:
 
 ```php
-use Spatie\Async\Pool;
+use Time4dev\Async\Pool;
 
 $pool = Pool::create()
 

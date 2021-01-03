@@ -1,13 +1,13 @@
 <?php
 
-namespace Spatie\Async;
+namespace Time4dev\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use Spatie\Async\Process\ParallelProcess;
-use Spatie\Async\Process\Runnable;
-use Spatie\Async\Process\SynchronousProcess;
-use Spatie\Async\Runtime\ParentRuntime;
+use Time4dev\Async\Process\ParallelProcess;
+use Time4dev\Async\Process\Runnable;
+use Time4dev\Async\Process\SynchronousProcess;
+use Time4dev\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
 {
@@ -18,19 +18,19 @@ class Pool implements ArrayAccess
     protected $timeout = 300;
     protected $sleepTime = 50000;
 
-    /** @var \Spatie\Async\Process\Runnable[] */
+    /** @var Runnable[] */
     protected $queue = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
+    /** @var Runnable[] */
     protected $inProgress = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
+    /** @var Runnable[] */
     protected $finished = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
+    /** @var Runnable[] */
     protected $failed = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
+    /** @var Runnable[] */
     protected $timeouts = [];
 
     protected $results = [];
@@ -125,10 +125,10 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @param \Spatie\Async\Process\Runnable|callable $process
+     * @param Runnable|callable $process
      * @param int|null $outputLength
      *
-     * @return \Spatie\Async\Process\Runnable
+     * @return Runnable
      */
     public function add($process, ?int $outputLength = null): Runnable
     {
@@ -257,7 +257,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getQueue(): array
     {
@@ -265,7 +265,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getInProgress(): array
     {
@@ -273,7 +273,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getFinished(): array
     {
@@ -281,7 +281,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getFailed(): array
     {
@@ -289,7 +289,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getTimeouts(): array
     {

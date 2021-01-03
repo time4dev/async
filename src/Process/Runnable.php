@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async\Process;
+namespace Time4dev\Async\Process;
 
 interface Runnable
 {

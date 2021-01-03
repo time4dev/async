@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async\Tests;
+namespace Time4dev\Async\Tests;
 
 use Opis\Closure\SerializableClosure;
 use function Opis\Closure\serialize;

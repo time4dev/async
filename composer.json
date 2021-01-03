@@ -34,12 +34,12 @@
             "src/helpers.php"
         ],
         "psr-4": {
-            "Spatie\\Async\\": "src"
+            "Time4dev\\Async\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\Async\\Tests\\": "tests"
+            "Time4dev\\Async\\Tests\\": "tests"
         }
     },
     "scripts": {

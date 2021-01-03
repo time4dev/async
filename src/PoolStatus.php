@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Async;
+namespace Time4dev\Async;
 
-use Spatie\Async\Output\SerializableException;
-use Spatie\Async\Process\ParallelProcess;
+use Time4dev\Async\Output\SerializableException;
+use Time4dev\Async\Process\ParallelProcess;
 
 class PoolStatus
 {
