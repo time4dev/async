@@ -130,7 +130,6 @@ class WorkerCommand extends Command
             $process = ParallelProcess::create($process, self::getId());
 
             $process->then(function ($output) use ($row) {
-                $this->info($output);
                 event(sprintf("async.%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
             })->catch(function (\Throwable $exception) use ($row, $process) {
                 $class = get_class($exception);
