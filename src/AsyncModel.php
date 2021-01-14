@@ -6,6 +6,7 @@ namespace Time4dev\Async;
 
 use App\AsyncJobs\MyJob;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Time4dev\Async\Commands\WorkerCommand;
@@ -19,7 +20,7 @@ use Time4dev\Async\Runtime\ParentRuntime;
  * @property int $pid
  * @property string $name
  * @property string $status
- * @property string $description
+ * @property Collection|null $description
  * @property string $payload
  * @property \Illuminate\Support\Carbon $started_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -52,11 +53,16 @@ class AsyncModel extends Model
     /** @var string[]  */
     protected $fillable = ['pid', 'description', 'status', 'name', 'payload', 'started_at', 'created_at', 'updated_at'];
 
+    /** @var string[]  */
+    protected $casts = [
+        'description' => 'collection'
+    ];
+
     /**
      * @param $job
      * @return Model|AsyncModel
      */
-    public static function run($job, ?string $description = null)
+    public static function run($job, ?array $description = null)
     {
         return self::add(self::makeJob($job), $description);
     }
@@ -107,10 +113,10 @@ class AsyncModel extends Model
      * @param int|null $outputLength
      * @return Model|AsyncModel
      */
-    public static function add($process, ?string $description = null, ?int $outputLength = null)
+    public static function add($process, ?array $description = null, ?int $outputLength = null)
     {
         if (!is_callable($process) && ! $process instanceof Runnable) {
-            throw new InvalidArgumentException('The process passed to should be callable.');
+            throw new \InvalidArgumentException('The process passed to should be callable.');
         }
 
         return self::putInQueue($process, $description);
@@ -120,7 +126,7 @@ class AsyncModel extends Model
      * @param $process
      * @return Model|AsyncModel
      */
-    public static function putInQueue($process, ?string $description)
+    public static function putInQueue($process, ?array $description)
     {
         if ($name = $name = method_exists($process, 'dbName')) {
             $name = $process->dbName();
@@ -132,16 +138,10 @@ class AsyncModel extends Model
 
         return AsyncModel::create([
             'name' => $name,
-            'description' => $description,
+            'description' => Collection::wrap($description),
             'status' => WorkerCommand::STATUS_QUEUED,
             'payload' => ParentRuntime::encodeTask($process)
         ]);
-    }
-
-    public function start($callback)
-    {
-        $callback = self::makeJob($callback);
-        // TODO add callbacks
     }
 }
 

@@ -48,6 +48,9 @@ class WorkerCommand extends Command
             return $this->error('Не поддерживается.');
         }
 
+        $now = now()->format('Y-m-d H:i:s');
+        $this->alert("Daemon async started {$now}");
+
         $sleep = $this->option('sleep');
         $this->database = app('db')->connection('mysql');
         $this->registerListener();
@@ -57,10 +60,7 @@ class WorkerCommand extends Command
             ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])
             ->delete();
 
-        $i = 1;
         while (true) {
-            $this->line('step ' . $i);
-            $i++;
             sleep($sleep);
 
             $started = $this->database
@@ -132,8 +132,9 @@ class WorkerCommand extends Command
             $process->then(function ($output) use ($row) {
                 $this->info($output);
                 event(sprintf("async.%s.%s", $row->name, 'success'), [$row->id, $row->description, $output]);
-            })->catch(function (\Throwable $exception) use ($row) {
-                $this->line(get_class($exception));
+            })->catch(function (\Throwable $exception) use ($row, $process) {
+                $class = get_class($exception);
+                $this->comment("process #{$process->getPid()} Exception {$class}");
 
                 if ($exception instanceof StopAsyncException) {
                     event(sprintf("async.%s.%s", $row->name, 'stop'), [$row->id, $row->description, $exception]);
@@ -142,7 +143,6 @@ class WorkerCommand extends Command
 
                 event(sprintf("async.%s.%s", $row->name, 'fail'), [$row->id, $row->description, $exception]);
             })->timeout(function ()  use ($row) {
-                $this->line('!!!   timeout  !!!');
                 event(sprintf("async.%s.%s", $row->name, 'timeout'), [$row->id, $row->description]);
             });
 
@@ -152,6 +152,7 @@ class WorkerCommand extends Command
 
             $process->start();
             $this->processList[$process->getPid()] = $process;
+            $this->info("process #{$process->getPid()} Started");
 
             $this->database
                 ->table('async')
@@ -240,6 +241,8 @@ class WorkerCommand extends Command
 
     public function markAsFinished(Runnable $process)
     {
+        $this->info("process #{$process->getPid()} markAsFinished");
+
         unset($this->processList[$process->getPid()]);
         $this->deleteRowByProcess($process);
         $process->triggerSuccess();
@@ -247,6 +250,8 @@ class WorkerCommand extends Command
 
     public function markAsTimedOut(Runnable $process)
     {
+        $this->info("process #{$process->getPid()} markAsTimedOut");
+
         $process->stop();
         unset($this->processList[$process->getPid()]);
         $this->deleteRowByProcess($process);
@@ -255,6 +260,8 @@ class WorkerCommand extends Command
 
     public function markAsFailed(Runnable $process)
     {
+        $this->info("process #{$process->getPid()} markAsFailed");
+
         unset($this->processList[$process->getPid()]);
         $this->deleteRowByProcess($process);
         $process->triggerError();

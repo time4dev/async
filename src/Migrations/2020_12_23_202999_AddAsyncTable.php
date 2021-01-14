@@ -12,7 +12,7 @@ class AddAsyncTable extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('pid')->nullable();
             $table->string('name')->nullable();
-            $table->string('description')->nullable();
+            $table->longText('description')->nullable();
             $table->string('status');
             $table->longText('payload');
             $table->timestamp('started_at')->nullable();
