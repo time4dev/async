@@ -9,7 +9,7 @@ return [
     /*
      * Async process timeout.
      */
-    'timeout' => 15,
+    'timeout' => 21600,
 
     /*
      * Sleep (micro-second) time when waiting async processes.

@@ -17,7 +17,7 @@ use Time4dev\Async\StopAsyncException;
 
 class WorkerCommand extends Command
 {
-    protected $signature = 'async:queue {--sleep=2} {--timeout=600}';
+    protected $signature = 'async:queue {--sleep=2} {--timeout=21600}';
     protected $description = 'Async queue worker';
 
     const STATUS_QUEUED = 'queued';
