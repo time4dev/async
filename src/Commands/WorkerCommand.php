@@ -63,6 +63,12 @@ class WorkerCommand extends Command
         while (true) {
             sleep($sleep);
 
+            if (AsyncModel::getCancelStatus()) {
+                AsyncModel::forgetCancelStatus();
+                $this->info('Restart async by user request.');
+                return 0;
+            }
+
             $started = $this->database
                 ->table('async')
                 ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])
@@ -217,7 +223,6 @@ class WorkerCommand extends Command
     protected function registerListener()
     {
         pcntl_async_signals(true);
-
         pcntl_signal(SIGCHLD, function ($signo, $status) {
             while (true) {
                 $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);

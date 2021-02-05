@@ -5,6 +5,7 @@ namespace Time4dev\Async;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Time4dev\Async\Commands\JobMakeCommand;
+use Time4dev\Async\Commands\StopWorkerCommand;
 use Time4dev\Async\Commands\WorkerCommand;
 
 class AsyncServiceProvider extends BaseServiceProvider implements DeferrableProvider
@@ -63,6 +64,7 @@ class AsyncServiceProvider extends BaseServiceProvider implements DeferrableProv
     {
         $this->app->singleton('command.async.make', JobMakeCommand::class);
         $this->app->singleton('command.async.worker', WorkerCommand::class);
+        $this->app->singleton('command.async.worker.restart', StopWorkerCommand::class);
     }
 
     /**
@@ -73,6 +75,7 @@ class AsyncServiceProvider extends BaseServiceProvider implements DeferrableProv
         if ($this->app->runningInConsole()) {
             $this->commands(['command.async.make']);
             $this->commands(['command.async.worker']);
+            $this->commands(['command.async.worker.restart']);
         }
     }
 

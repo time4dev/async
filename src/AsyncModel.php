@@ -7,8 +7,10 @@ namespace Time4dev\Async;
 use App\AsyncJobs\MyJob;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
+use Psr\SimpleCache\InvalidArgumentException;
 use Time4dev\Async\Commands\WorkerCommand;
 use Time4dev\Async\Process\Runnable;
 use Time4dev\Async\Runtime\ParentRuntime;
@@ -57,6 +59,8 @@ class AsyncModel extends Model
     protected $casts = [
         'description' => 'collection'
     ];
+
+    const CACHE_KEY = 'async.worker.restart';
 
     /**
      * @param $job
@@ -142,6 +146,31 @@ class AsyncModel extends Model
             'status' => WorkerCommand::STATUS_QUEUED,
             'payload' => ParentRuntime::encodeTask($process)
         ]);
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function setCancelStatus()
+    {
+        return Cache::driver('redis')->put(self::CACHE_KEY, 1, 60 * 5);
+    }
+
+    /**
+     * @return mixed
+     * @throws InvalidArgumentException
+     */
+    public static function getCancelStatus()
+    {
+        return Cache::driver('redis')->get(self::CACHE_KEY, 0);
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function forgetCancelStatus()
+    {
+        return Cache::driver('redis')->forget(self::CACHE_KEY);
     }
 }
 
