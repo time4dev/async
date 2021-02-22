@@ -180,15 +180,15 @@ class WorkerCommand extends Command
 
     public function getNextProcess(int $limit)
     {
-        return $database->transaction(function () use ($limit, $database) {
-            $inProcess = $database->table('async')
+        return $this->database->transaction(function () use ($limit) {
+            $inProcess = $this->database->table('async')
                 ->select('description->group as group')
                 ->lock($this->getLockForPopping())
                 ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_PROCESS])
                 ->groupBy('group')
                 ->pluck('group');
 
-            return $database->table('async')
+            return $this->database->table('async')
                 ->select(['*', 'description->group as group'])
                 ->lock($this->getLockForPopping())
                 ->where('status', self::STATUS_QUEUED)
