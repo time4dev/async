@@ -63,16 +63,20 @@ class WorkerCommand extends Command
         while (true) {
             sleep($sleep);
 
-            if (AsyncModel::getCancelStatus()) {
-                AsyncModel::forgetCancelStatus();
-                $this->info('Restart async by user request.');
-                return 0;
-            }
-
             $started = $this->database
                 ->table('async')
                 ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_START_PROCESS])
                 ->count();
+
+            if (AsyncModel::getCancelStatus()) {
+                if ($started > 0) {
+                    continue;
+                }
+
+                AsyncModel::forgetCancelStatus();
+                $this->info('Restart async by user request.');
+                return 0;
+            }
 
             $concurrency = config('async.concurrency', 20);
             $limit = $concurrency - $started;
