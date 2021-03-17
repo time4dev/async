@@ -10,6 +10,7 @@ return [
      * Async process timeout.
      */
     'timeout' => 21600,
+    'longtimeout' => 360000,
 
     /*
      * Sleep (micro-second) time when waiting async processes.

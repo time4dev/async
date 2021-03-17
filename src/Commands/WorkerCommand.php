@@ -5,6 +5,7 @@ namespace Time4dev\Async\Commands;
 use App\Exceptions\StopJobException;
 use Illuminate\Console\Command;
 use Illuminate\Database\Connection;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use NotificationChannels\Telegram\Exceptions\CouldNotSendNotification;
 use Symfony\Component\Process\Process;
@@ -87,6 +88,7 @@ class WorkerCommand extends Command
 
             $inProgress = $this->database
                 ->table('async')
+                ->select(['*', 'description->long as long'])
                 ->where('status', self::STATUS_PROCESS)
                 ->orderBy('id')
                 ->get();
@@ -95,11 +97,20 @@ class WorkerCommand extends Command
                 if (isset($this->processList[$row->pid])) {
                     $process = $this->processList[$row->pid];
 
-                    if ($process->getCurrentExecutionTime() > $this->option('timeout')) {
+                    $timeout = config('async.timeout');
+                    $optionTimeout = $this->option('timeout');
+
+                    if ($optionTimeout != $timeout) {
+                        $timeout = $optionTimeout;
+                    }
+
+                    if ($row->long) {
+                        $timeout = config('async.longtimeout');
+                    }
+
+                    if ($process->getCurrentExecutionTime() >= $timeout) {
                         $this->markAsTimedOut($process);
                     }
-                } else {
-
                 }
             });
 
@@ -188,6 +199,10 @@ class WorkerCommand extends Command
             $inProcess = $this->database->table('async')
                 ->select('description->group as group')
                 ->lock($this->getLockForPopping())
+                ->where(function (Builder $builder) {
+                    $builder->whereNull('description->long')
+                        ->orWhere('description->long', false);
+                })
                 ->whereIn('status', [self::STATUS_PROCESS, self::STATUS_PROCESS])
                 ->groupBy('group')
                 ->pluck('group');
